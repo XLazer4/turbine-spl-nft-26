@@ -28,7 +28,7 @@ umi.use(mplCore());
     //add you nft name and metadata uri
     const tx = await create(umi, {
       asset,
-      name: "Turbine NFT",
+      name: "rip NFT",
       uri: metadataUri,
     }).sendAndConfirm(umi);
 
