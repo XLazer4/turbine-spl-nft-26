@@ -25,7 +25,6 @@ umi.use(mplCore());
       "https://gateway.irys.xyz/9Ko3TitLoobCAp4WUNfZcLA3r8H17QhJnvuz7NvwgmkP";
     const asset = generateSigner(umi);
 
-    //add you nft name and metadata uri
     const tx = await create(umi, {
       asset,
       name: "rip NFT",

@@ -19,7 +19,6 @@ import {
 } from "@solana-program/token";
 import { getCreateAccountInstruction } from "@solana-program/system";
 
-//import your wallet
 import wallet from "../../devnet-wallet.json";
 
 const rpc = createSolanaRpc("https://api.devnet.solana.com");
@@ -28,20 +27,17 @@ const rpcSubscriptions = createSolanaRpcSubscriptions(
   "wss://api.devnet.solana.com",
 );
 
-// 6 decimals => 1 token = 1_000_000 base units
 const DECIMALS = 6;
 
 (async () => {
   try {
     const signer = await createKeyPairSignerFromBytes(new Uint8Array(wallet));
 
-    // fresh keypair that will become the mint account
     const mint = await generateKeyPairSigner();
 
     const space = BigInt(getMintSize());
     const rent = await rpc.getMinimumBalanceForRentExemption(space).send();
 
-    // 1. allocate the mint account, owned by the token program
     const createAccountIx = getCreateAccountInstruction({
       payer: signer,
       newAccount: mint,
@@ -50,7 +46,6 @@ const DECIMALS = 6;
       programAddress: TOKEN_PROGRAM_ADDRESS,
     });
 
-    // 2. initialize it as a mint; our wallet is mint + freeze authority
     const initializeMintIx = getInitializeMintInstruction({
       mint: mint.address,
       decimals: DECIMALS,
@@ -74,7 +69,6 @@ const DECIMALS = 6;
       msgWithLifetime,
     );
 
-    // signs with both the fee payer and the new mint keypair
     const signedTx = await signTransactionMessageWithSigners(txMessage);
 
     assertIsTransactionWithBlockhashLifetime(signedTx);

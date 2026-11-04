@@ -26,10 +26,8 @@ umi.use(signerIdentity(signer));
 
 (async () => {
   try {
-    //chanege image path to your image path
     const image = await readFile("image.jpeg");
 
-    //change the image name and mime type
     const file = createGenericFile(image, "image.jpeg", {
       contentType: "image/jpeg",
     });

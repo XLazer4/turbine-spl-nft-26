@@ -13,7 +13,6 @@ const umi = createUmi(
   process.env.SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
 );
 
-// must be the asset's update authority (the wallet that minted it)
 const keypair = umi.eddsa.createKeypairFromSecretKey(new Uint8Array(wallet));
 const signer = createSignerFromKeypair(umi, keypair);
 
@@ -21,14 +20,11 @@ umi.use(irysUploader({ address: "https://devnet.irys.xyz/" }));
 umi.use(signerIdentity(signer));
 umi.use(mplCore());
 
-//paste the asset address logged by nft_mint.ts
 const assetAddress = publicKey("HKKLeBUG7QhEMFyiA9MRSpZjyMrmen4qove32YaywUFK");
 
-//image uri obtained from nft_image.ts (unchanged by this update)
 const image =
   "https://gateway.irys.xyz/HktQkdkzC4y1YUjHARR4oHo5Gwka97QVLXchAbPkgscF";
 
-//change the new name and metadata
 const NEW_NAME = "rip NFT v2";
 
 const newMetadata = {
@@ -51,12 +47,9 @@ const newMetadata = {
     const asset = await fetchAsset(umi, assetAddress);
     console.log(`before -> name: ${asset.name}, uri: ${asset.uri}`);
 
-    // 1. upload the new off-chain JSON
     const newUri = await umi.uploader.uploadJson(newMetadata);
     console.log(`new metadata uri: ${newUri}`);
 
-    // 2. point the on-chain asset at it and rename it
-    //    (umi identity signs as the update authority)
     const tx = await update(umi, {
       asset,
       name: NEW_NAME,

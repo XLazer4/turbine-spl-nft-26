@@ -26,13 +26,10 @@ const rpcSubscriptions = createSolanaRpcSubscriptions(
   "wss://api.devnet.solana.com",
 );
 
-// mint has 6 decimals => 1 token = 1_000_000 base units
 const token_decimals = 1_000_000n;
 
-// how many whole tokens to mint
 const AMOUNT = 1_000n;
 
-//paste your mint address got from spl_init.ts
 const mint = address("BAnxCEjbw5fYVhiYm6XJ5VXqDC2tsxe9Jz8ujUWWNQz6");
 
 (async () => {
@@ -46,7 +43,6 @@ const mint = address("BAnxCEjbw5fYVhiYm6XJ5VXqDC2tsxe9Jz8ujUWWNQz6");
     });
     console.log(`Your ata is : ${ata}`);
 
-    // idempotent: no-op if the ATA already exists, so the script can be re-run
     const createAtaIx = await getCreateAssociatedTokenIdempotentInstructionAsync(
       {
         payer: signer,

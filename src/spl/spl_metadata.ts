@@ -14,7 +14,6 @@ import {
 } from "@metaplex-foundation/mpl-token-metadata";
 import bs58 from "bs58";
 
-//paste your mint address got from spl_init.ts
 const mint = publicKey("BAnxCEjbw5fYVhiYm6XJ5VXqDC2tsxe9Jz8ujUWWNQz6");
 
 const umi = createUmi("https://api.devnet.solana.com");
@@ -30,7 +29,6 @@ const SYMBOL = "TURB";
 
 (async () => {
   try {
-    // off-chain JSON the on-chain `uri` points to (wallets/explorers read this)
     const uri = await umi.uploader.uploadJson({
       name: NAME,
       symbol: SYMBOL,

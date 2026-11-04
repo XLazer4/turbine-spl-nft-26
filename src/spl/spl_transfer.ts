@@ -26,17 +26,13 @@ const rpcSubscriptions = createSolanaRpcSubscriptions(
   "wss://api.devnet.solana.com",
 );
 
-// must match the decimals the mint was initialized with in spl_init.ts
 const DECIMALS = 6;
 const token_decimals = 1_000_000n;
 
-// how many whole tokens to send
 const AMOUNT = 100n;
 
-//paste your mint address got from spl_init.ts
 const mint = address("BAnxCEjbw5fYVhiYm6XJ5VXqDC2tsxe9Jz8ujUWWNQz6");
 
-//paste the address of the recipient
 const to = address("6E7HAX9j75mgr6qGpBhK1Cb7AFn4hQkNyHJiUvd6zaDB");
 
 (async () => {
@@ -61,7 +57,6 @@ const to = address("6E7HAX9j75mgr6qGpBhK1Cb7AFn4hQkNyHJiUvd6zaDB");
     });
     console.log(`Your toAta is : ${toAta}`);
 
-    // create the recipient's ATA if it doesn't exist yet (we pay the rent)
     const createAtaIx = await getCreateAssociatedTokenIdempotentInstructionAsync(
       {
         payer: signer,
@@ -70,7 +65,6 @@ const to = address("6E7HAX9j75mgr6qGpBhK1Cb7AFn4hQkNyHJiUvd6zaDB");
       },
     );
 
-    // transferChecked also verifies the mint and decimals, unlike plain transfer
     const transferTx = getTransferCheckedInstruction({
       source: fromAta,
       mint,

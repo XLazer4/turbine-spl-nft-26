@@ -23,12 +23,9 @@ umi.use(signerIdentity(signer));
 
 (async () => {
   try {
-    //change the image uri to your image uri obtained from nft_image.ts
     const image =
       "https://gateway.irys.xyz/HktQkdkzC4y1YUjHARR4oHo5Gwka97QVLXchAbPkgscF";
 
-    //json scheme : https://www.metaplex.com/docs/smart-contracts/core/json-schema
-    //change the metadata
     const metadata = {
       name: "rip NFT",
       description: "prayers to the lord",
