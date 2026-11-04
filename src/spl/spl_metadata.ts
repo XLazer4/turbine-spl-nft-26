@@ -5,6 +5,7 @@ import {
 } from "@metaplex-foundation/umi";
 import wallet from "../../devnet-wallet.json";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import { irysUploader } from "@metaplex-foundation/umi-uploader-irys";
 import {
   createMetadataAccountV3,
   CreateMetadataAccountV3InstructionAccounts,
@@ -14,37 +15,58 @@ import {
 import bs58 from "bs58";
 
 //paste your mint address got from spl_init.ts
-const mint = publicKey("E2Jazz2VXcVL9RZkn6ZFA4q1YGvgEvrns3Gr6w72DC4w");
+const mint = publicKey("BAnxCEjbw5fYVhiYm6XJ5VXqDC2tsxe9Jz8ujUWWNQz6");
 
 const umi = createUmi("https://api.devnet.solana.com");
 
 const keypair = umi.eddsa.createKeypairFromSecretKey(new Uint8Array(wallet));
 const signer = createSignerFromKeypair(umi, keypair);
 
+umi.use(irysUploader({ address: "https://devnet.irys.xyz/" }));
 umi.use(signerIdentity(signer));
+
+const NAME = "Turbine Devnet Token";
+const SYMBOL = "TURB";
 
 (async () => {
   try {
+    // off-chain JSON the on-chain `uri` points to (wallets/explorers read this)
+    const uri = await umi.uploader.uploadJson({
+      name: NAME,
+      symbol: SYMBOL,
+      description: "SPL token minted on devnet for the Turbine SPL/NFT tasks.",
+    });
+    console.log(`token json uri: ${uri}`);
+
     const accounts: CreateMetadataAccountV3InstructionAccounts = {
       mint,
       mintAuthority: signer,
     };
 
-    //change the metadata
-    // const data: DataV2Args =
+    const data: DataV2Args = {
+      name: NAME,
+      symbol: SYMBOL,
+      uri,
+      sellerFeeBasisPoints: 0,
+      creators: null,
+      collection: null,
+      uses: null,
+    };
 
-    // const args: CreateMetadataAccountV3InstructionArgs =
+    const args: CreateMetadataAccountV3InstructionArgs = {
+      data,
+      isMutable: true,
+      collectionDetails: null,
+    };
 
-    // const tx = createMetadataAccountV3(umi, {
-    //   ...accounts,
-    //   ...args,
-    // });
+    const tx = createMetadataAccountV3(umi, {
+      ...accounts,
+      ...args,
+    });
 
-    // const result = await tx.sendAndConfirm(umi);
-    // console.log("signature: ", bs58.encode(Buffer.from(result.signature)));
+    const result = await tx.sendAndConfirm(umi);
+    console.log("signature: ", bs58.encode(Buffer.from(result.signature)));
   } catch (error) {
     console.log("error", error);
   }
 })();
-
-//43ttSnN9qaVi8TDcWwBZo5mUbfKDXY8d1N7exdJojJxV7qjKuwXoEh7qASXbFU4QFrAEFzZvcmWpRch434hSVNLN
