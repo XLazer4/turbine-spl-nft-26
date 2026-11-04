@@ -15,7 +15,7 @@ import {
 import wallet from "../../devnet-wallet.json";
 import {
   findAssociatedTokenPda,
-  getCreateAssociatedTokenInstructionAsync,
+  getCreateAssociatedTokenIdempotentInstructionAsync,
   getTransferCheckedInstruction,
   TOKEN_PROGRAM_ADDRESS,
 } from "@solana-program/token";
@@ -26,11 +26,18 @@ const rpcSubscriptions = createSolanaRpcSubscriptions(
   "wss://api.devnet.solana.com",
 );
 
+// must match the decimals the mint was initialized with in spl_init.ts
+const DECIMALS = 6;
+const token_decimals = 1_000_000n;
+
+// how many whole tokens to send
+const AMOUNT = 100n;
+
 //paste your mint address got from spl_init.ts
-const mint = address("E2Jazz2VXcVL9RZkn6ZFA4q1YGvgEvrns3Gr6w72DC4w");
+const mint = address("BAnxCEjbw5fYVhiYm6XJ5VXqDC2tsxe9Jz8ujUWWNQz6");
 
 //paste the address of the recipient
-const to = address("9EUd4VNcjMAysd7zQk3Q1a4tb28BYndLNBAQDiYnHJ64");
+const to = address("6E7HAX9j75mgr6qGpBhK1Cb7AFn4hQkNyHJiUvd6zaDB");
 
 (async () => {
   try {
@@ -54,9 +61,24 @@ const to = address("9EUd4VNcjMAysd7zQk3Q1a4tb28BYndLNBAQDiYnHJ64");
     });
     console.log(`Your toAta is : ${toAta}`);
 
-    // const createAtaIx =
+    // create the recipient's ATA if it doesn't exist yet (we pay the rent)
+    const createAtaIx = await getCreateAssociatedTokenIdempotentInstructionAsync(
+      {
+        payer: signer,
+        mint,
+        owner: to,
+      },
+    );
 
-    // const transferTx =
+    // transferChecked also verifies the mint and decimals, unlike plain transfer
+    const transferTx = getTransferCheckedInstruction({
+      source: fromAta,
+      mint,
+      destination: toAta,
+      authority: signer,
+      amount: AMOUNT * token_decimals,
+      decimals: DECIMALS,
+    });
 
     const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
 
@@ -64,25 +86,25 @@ const to = address("9EUd4VNcjMAysd7zQk3Q1a4tb28BYndLNBAQDiYnHJ64");
 
     const msgWithPayer = setTransactionMessageFeePayerSigner(signer, msg);
 
-    const msgWithLiftime = setTransactionMessageLifetimeUsingBlockhash(
+    const msgWithLifetime = setTransactionMessageLifetimeUsingBlockhash(
       latestBlockhash,
       msgWithPayer,
     );
 
-    // const txMessage = appendTransactionMessageInstructions(
-    //   [createAtaIx, transferTx],
-    //   msgWithLiftime,
-    // );
+    const txMessage = appendTransactionMessageInstructions(
+      [createAtaIx, transferTx],
+      msgWithLifetime,
+    );
 
-    // const signedTx = await signTransactionMessageWithSigners(txMessage);
+    const signedTx = await signTransactionMessageWithSigners(txMessage);
 
-    // assertIsTransactionWithBlockhashLifetime(signedTx);
+    assertIsTransactionWithBlockhashLifetime(signedTx);
 
-    // const signature = getSignatureFromTransaction(signedTx);
+    const signature = getSignatureFromTransaction(signedTx);
 
-    // await sendAndConfirm(signedTx, { commitment: "confirmed" });
+    await sendAndConfirm(signedTx, { commitment: "confirmed" });
 
-    // console.log(`mint txid: ${signature}`);
+    console.log(`transfer txid: ${signature}`);
   } catch (error) {
     console.log(error);
   }
