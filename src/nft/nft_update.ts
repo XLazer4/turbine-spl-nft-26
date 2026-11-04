@@ -59,8 +59,10 @@ const newMetadata = {
     const signature = base58.deserialize(tx.signature)[0];
     console.log(`update signature: ${signature}`);
 
-    const updated = await fetchAsset(umi, assetAddress);
-    console.log(`after  -> name: ${updated.name}, uri: ${updated.uri}`);
+    const updated = await fetchAsset(umi, assetAddress, {
+      commitment: "confirmed",
+    });
+    console.log(`after -> name: ${updated.name}, uri: ${updated.uri}`);
   } catch (e) {
     console.log(`error ${e}`);
   }
